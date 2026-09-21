@@ -10,7 +10,7 @@ PuzzleStay3는 두 플레이어가 서로의 정보와 행동을 연결해 퍼�
 팀 전체 구현과 개인 담당 범위를 구분해 소개합니다.
 
 <!-- 대표 플레이 이미지 추가 -->
-<!-- ![PuzzleStay3 대표 화면](./Images/Puzzlestay_main.png) -->
+[PuzzleStay3 대표 화면](./Images/Puzzlestay_main.png)
 
 ## 프로젝트 정보
 
