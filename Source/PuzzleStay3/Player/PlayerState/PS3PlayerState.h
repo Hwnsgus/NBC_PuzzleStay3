@@ -1,0 +1,158 @@
+#pragma once
+
+#include "CoreMinimal.h"
+#include "Data/Enum/InteractionState.h"
+#include "Data/Enum/PS3PlayerIdentity.h"
+#include "Data/Enum/PS3PlayerRole.h"
+#include "Data/Enum/VoiceChatState.h"
+#include "GameFramework/PlayerState.h"
+#include "PS3PlayerState.generated.h"
+
+class APlayerController;
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FPS3LifeCountChangedSignature, int32, NewLifeCount);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FPS3DeadStateChangedSignature, bool, bNewIsDead);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FPS3PlayerRoleChangedSignature, EPS3PlayerRole, NewRole);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FPS3VoiceChatStateChangedSignature, EVoiceChatState, NewState);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FPS3VoiceObjectHeldChangedSignature, bool, bNewIsHeld);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FPS3RespawnRequestedSignature, APlayerController*, TargetController);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FPS3InteractionStateChangedSignature, EInteractionState, NewState);
+
+
+UCLASS()
+class PUZZLESTAY3_API APS3PlayerState : public APlayerState
+{
+	GENERATED_BODY()
+
+public:
+	APS3PlayerState();
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	UFUNCTION(BlueprintPure, Category = "PS3|Player State")
+	int32 GetCurrentLifeCount() const { return CurrentLifeCount; }
+
+	UFUNCTION(BlueprintPure, Category = "PS3|Player State")
+	bool IsDead() const { return bIsDead; }
+
+	UFUNCTION(BlueprintPure, Category = "PS3|Player State")
+	EPS3PlayerRole GetPlayerRole() const { return PlayerRole; }
+
+	UFUNCTION(BlueprintPure, Category = "PS3|Player State")
+	EPS3PlayerIdentity GetPlayerIdentity() const { return PlayerIdentity; }
+	
+	UFUNCTION(BlueprintPure, Category = "PS3|Player State|Voice")
+	EVoiceChatState GetVoiceChatState() const{ return VoiceChatState;}
+
+	UFUNCTION(BlueprintPure, Category = "PS3|Player State|Voice")
+	bool IsVoiceObjectHeld() const{ return bIsVoiceObjectHeld;}
+	
+	UFUNCTION( BlueprintCallable,BlueprintAuthorityOnly,Category = "PS3|Player State|Voice")
+	void SetVoiceChatState(EVoiceChatState NewState);
+
+	UFUNCTION(BlueprintCallable,BlueprintAuthorityOnly,Category = "PS3|Player State|Voice")
+	void SetVoiceObjectHeld(bool bNewIsHeld);
+	
+	
+	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "PS3|Player State")
+	void SetCurrentLifeCount(int32 NewLifeCount);
+
+	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "PS3|Player State")
+	void SetIsDead(bool bNewIsDead);
+
+	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "PS3|Player State")
+	void SetPlayerRole(EPS3PlayerRole NewRole);
+
+	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "PS3|Player State")
+	void SetPlayerIdentity(EPS3PlayerIdentity NewIdentity);
+
+	UPROPERTY(BlueprintAssignable, Category = "PS3|Player State|Events")
+	FPS3LifeCountChangedSignature OnLifeCountChanged;
+
+	UPROPERTY(BlueprintAssignable, Category = "PS3|Player State|Events")
+	FPS3DeadStateChangedSignature OnDeadStateChanged;
+
+	UPROPERTY(BlueprintAssignable, Category = "PS3|Player State|Events")
+	FPS3PlayerRoleChangedSignature OnPlayerRoleChanged;
+	
+	UPROPERTY(BlueprintAssignable, Category = "PS3|Player State|Voice")
+	FPS3VoiceChatStateChangedSignature OnVoiceChatStateChanged;
+
+	UPROPERTY(BlueprintAssignable, Category = "PS3|Player State|Voice")
+	FPS3VoiceObjectHeldChangedSignature OnVoiceObjectHeldChanged;
+
+	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "PS3|Player State|Life")
+	void InitializeLifeCount(int32 NewLifeCount);
+
+	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "PS3|Player State|Life")
+	bool TryConsumeLife();
+
+	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "PS3|Player State|Life")
+	void FinishRespawn();
+
+	UFUNCTION(BlueprintPure, Category = "PS3|Player State|Life")
+	bool IsRespawning() const { return bIsRespawning; }
+
+	UFUNCTION(BlueprintPure, Category = "PS3|Player State|Interaction")
+	EInteractionState GetInteractionState() const { return InteractionState; }
+
+	UFUNCTION(BlueprintPure, Category = "PS3|Player State|Interaction")
+	bool IsInteracting() const { return InteractionState == EInteractionState::IsInteracting; }
+
+	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "PS3|Player State|Interaction")
+	void SetInteractionState(EInteractionState NewState);
+
+	UPROPERTY(BlueprintAssignable, Category = "PS3|Player State|Interaction")
+	FPS3InteractionStateChangedSignature OnInteractionStateChanged;
+	
+	UPROPERTY(BlueprintAssignable, Category = "PS3|Player State|Events")
+	FPS3RespawnRequestedSignature OnRespawnRequested;
+	
+
+protected:
+	UFUNCTION()
+	void OnRep_LifeChanged();
+
+	UFUNCTION()
+	void OnRep_DeadChanged();
+
+	UFUNCTION()
+	void OnRep_PlayerRole();
+
+	UFUNCTION()
+	void OnRep_PlayerIdentity();
+	
+	UFUNCTION()
+	void OnRep_VoiceChatState();
+
+	UFUNCTION()
+	void OnRep_VoiceObjectHeld();
+
+	UFUNCTION()
+	void OnRep_InteractionState();
+
+	UPROPERTY(EditDefaultsOnly, ReplicatedUsing = OnRep_LifeChanged, Category = "PS3|Player State", meta = (ClampMin = "0"))
+	int32 CurrentLifeCount = 4;
+
+	UPROPERTY(VisibleInstanceOnly, ReplicatedUsing = OnRep_DeadChanged, Category = "PS3|Player State")
+	bool bIsDead = false;
+
+	UPROPERTY(VisibleInstanceOnly, ReplicatedUsing = OnRep_PlayerRole, Category = "PS3|Player State")
+	EPS3PlayerRole PlayerRole = EPS3PlayerRole::Unassigned;
+
+	UPROPERTY(VisibleInstanceOnly, ReplicatedUsing = OnRep_PlayerIdentity, Category = "PS3|Player State")
+	EPS3PlayerIdentity PlayerIdentity = EPS3PlayerIdentity::Unassigned;
+	
+	UPROPERTY(VisibleInstanceOnly, ReplicatedUsing = OnRep_VoiceChatState, Category = "PS3|Player State|Voice")
+	EVoiceChatState VoiceChatState = EVoiceChatState::Default;
+
+	UPROPERTY(VisibleInstanceOnly, ReplicatedUsing = OnRep_VoiceObjectHeld, Category = "PS3|Player State|Voice")
+	bool bIsVoiceObjectHeld = false;
+
+	UPROPERTY(VisibleInstanceOnly, ReplicatedUsing = OnRep_InteractionState, Category = "PS3|Player State|Interaction")
+	EInteractionState InteractionState = EInteractionState::IsNotInteracting;
+
+	// 서버에서 중복 차감을 방지하기 위한 처리 상태
+	UPROPERTY(Transient)
+	bool bIsRespawning = false;
+};

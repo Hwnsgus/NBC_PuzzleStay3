@@ -1,0 +1,33 @@
+﻿// Fill out your copyright notice in the Description page of Project Settings.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "PS3GameStateBase.h"
+#include "PS3GameStateS2.generated.h"
+
+UCLASS()
+class PUZZLESTAY3_API APS3GameStateS2 : public APS3GameStateBase
+{
+	GENERATED_BODY()
+	
+public:
+	virtual void BeginPlay() override;
+	
+protected:
+	virtual void InitializeToDataAssets() override;
+
+	UPROPERTY(EditAnywhere, Category = "GameRule")
+	TObjectPtr<class US2_GameRuleDataAsset> S2_GameRuleDataAsset;
+
+public:
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void NotifyPlayerDeadGameOver() override;
+
+protected:
+	UPROPERTY(ReplicatedUsing = OnRep_PlayerDeadGameOver)
+	bool bPlayerDeadGameOver = false;
+
+	UFUNCTION()
+	void OnRep_PlayerDeadGameOver();
+};
