@@ -126,7 +126,7 @@ ViewModel 값 변경과 FieldNotify
 UI에 전달할 값과 화면 표현을 구분했습니다.
 
 ## 개인 담당 — 황준현
-
+![PuzzleStay3 대표 화면](./Images/Puzzlestay_stage1.png)
 ### Player
 
 - 플레이어 입력과 상호작용 요청 처리
@@ -137,7 +137,7 @@ UI에 전달할 값과 화면 표현을 구분했습니다.
 - 입력 초기화 중복 실행 방지와 이벤트·타이머 정리
 
 ### EOS 및 음성 연동
-
+![PuzzleStay3 대표 화면](./Images/Puzzlestay_lobby.png)
 - EOS 로그인과 로그인 상태 확인
 - 최대 2인 로비 생성·검색·참가·퇴장
 - 로비 생성 후 호스트 대기실 실행
